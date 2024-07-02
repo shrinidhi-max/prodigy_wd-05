@@ -1,0 +1,46 @@
+const apiKey = 'YOUR_API_KEY'; // Replace with your own API key from OpenWeatherMap or any other weather API
+
+const weatherForm = document.getElementById('weatherForm');
+const locationInput = document.getElementById('locationInput');
+const weatherInfo = document.getElementById('weatherInfo');
+
+weatherForm.addEventListener('submit', async function(event) {
+    event.preventDefault();
+    
+    const location = locationInput.value;
+    
+    try {
+        const weatherData = await getWeatherData(location);
+        displayWeather(weatherData);
+    } catch (error) {
+        console.error('Error fetching weather data:', error);
+        weatherInfo.innerHTML = '<p>Failed to fetch weather data. Please try again.</p>';
+    }
+});
+
+async function getWeatherData(location) {
+    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${location}&units=metric&appid=${apiKey}`;
+    
+    const response = await fetch(apiUrl);
+    
+    if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data;
+}
+
+function displayWeather(data) {
+    const { name: city, weather, main: { temp, feels_like, humidity } } = data;
+    
+    const weatherHTML = `
+        <h2>${city}</h2>
+        <p>Current Weather: ${weather[0].description}</p>
+        <p>Temperature: ${temp}°C</p>
+        <p>Feels Like: ${feels_like}°C</p>
+        <p>Humidity: ${humidity}%</p>
+    `;
+    
+    weatherInfo.innerHTML = weatherHTML;
+}
